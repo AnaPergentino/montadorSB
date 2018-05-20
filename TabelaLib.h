@@ -10,6 +10,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <unordered_map>
 
 // Para essa classe precisamos definir 2 tabelas estáticas e uma dinâmica:
 // 1. Tabela de Diretivas
@@ -20,55 +21,84 @@
 // Após isso, precisaremos dizer, para cada instrução ou diretiva:
 // Operandos
 // Tamanho
-// AÇão
+
+enum opcodes {
+    ADD = 1,
+    SUB,
+    MULT,
+    DIV,
+    JMP,
+    JMPN,
+    JMPP,
+    JMPZ,
+    COPY,
+    LOAD,
+    STORE,
+    INPUT,
+    OUTPUT,
+    STOP
+};
+
+enum diretivas {
+    SECTION,
+    SPACE,
+    CONST,
+    EQU,
+    IF,
+    MACRO,
+    ENDMACRO,
+};
+
+struct InfoDeInstrucoes {
+    int numeroDeOperandos;
+    int tamanho;
+    opcodes opcodesInstrucoes;
+};
+
+struct InfoDeDiretivas {
+    int numeroDeOperandos;
+    int tamanho;
+    diretivas diretivasDiretivas; // nome horrível, aceito sugestoes
+    bool isPre;
+};
+
+struct InfoDeSimbolo {
+    int endereco; // -1 significa endereço indefinido
+    int espaco; // -1 significa espaço indefinido
+
+    bool isConstante; // false funcionará para
+    int valorConstante; // Talvez não seja necessário, já que o .o não faz cálculos com o valor absoluto da constante
+                        // -1 significa valor indefinido
+
+    InfoDeSimbolo(int valor, int espaco, bool isConstante, int valorConstante) :
+    endereco(valor),
+    espaco(1),
+    valorConstante(0),
+    isConstante(false) {};
+};
+
 class TabelaLib {
 public:
-    enum opcodes{
-        ADD = 1,
-        SUB,
-        MULT,
-        DIV,
-        JMP,
-        JMPN,
-        JMPP,
-        JMPZ,
-        COPY,
-        LOAD,
-        STORE,
-        INPUT,
-        OUTPUT,
-        STOP
-    };
+    static std::unordered_map<std::string, InfoDeSimbolo> TabelaDeSimbolos;
+    static std::unordered_map<std::string, int> MacroDefinitionTable;
+    static std::unordered_map<std::string, int> MacroNameTable;
 
-    enum diretivas{
-        SECTION,
-        SPACE,
-        CONST,
-        EQU,
-        IF,
-        MACRO,
-        ENDMACRO,
-    };
+    bool isDiretiva(std::string operacao);
+    InfoDeDiretivas getDiretiva(std::string operacao);
+    bool isInstrucao(std::string operacao);
+    InfoDeInstrucoes getInstrucao(std::string operacao);
 
-    // TODO: Também é necessário inserir o tipo de operação a ser realizado, mas não sei como fazer isso agora
-    struct infoDeInstrucoes {
-        int numeroDeOperandos;
-        int tamanho;
-        opcodes opcodesInstrucoes; // O código de enum já associa ao código da tabela
-        // ? operacaoARealizar;
-    };
+//    void insereSimboloNaTabelaDeSimbolos(std::string, InfoDeSimbolo);
+//    bool rotuloJaExistenteNaTabelaDeSimbolos(std::string);
 
-    struct infoDeDiretivas {
-        int numeroDeOperandos;
-        int tamanho;
-        diretivas diretivasDiretivas; // nome horrível, aceito sugestoes
-        bool isPre;
-    };
+    static const std::unordered_map<std::string, InfoDeSimbolo> &getTabelaDeSimbolos();
 
-//    void montarTabelaDeDiretivas(std::vector tabelaDeSimbolos);
-    std::string converterOpcodesEmString(int opcode);
+    static void setTabelaDeSimbolos(const std::unordered_map<std::string, InfoDeSimbolo> &TabelaDeSimbolos);
 
-
+private:
+    // Todas são statics pois usarei em várias partes do código
+    static std::unordered_map<std::string, InfoDeInstrucoes> TabelaDeInstrucoes;
+    static std::unordered_map<std::string, InfoDeDiretivas> TabelaDeDiretivas;
 
 };
 

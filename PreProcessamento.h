@@ -9,10 +9,25 @@
 #include <fstream>
 
 class PreProcessamento {
+public:
+    PreProcessamento(const std::string &fileString);
+
+private:
+    std::string fileString;
+public:
     void processarMacros(std::ifstream arquivo);
-    void processarDiretivas(std::ifstream arquivo);
+    void processarDiretivas(std::string fileString);
     void montarCodigo(std::ifstream arquivo);
 
+    void processarEQU();
+    bool isEQU(std::string linha);
+    void processarIF();
+    bool isIF(std::string linha);
+
+
+    const std::string &getFileString() const;
+
+    void setFileString(const std::string &fileString);
 };
 
 

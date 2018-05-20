@@ -7,21 +7,32 @@
 
 
 #include <string>
+#include <vector>
 #include "TabelaSimbolos.h"
 
 class ParseLib{
 protected:
     std::vector<std::string> linhasDoCodigo;
     std::string arquivo;
+    int contadorPosicao;
+    int contadorLinha;
+    bool parsingMacro;
+    bool sectionText;
+    bool sectionData;
 public:
 
     ParseLib(const std::string &arquivo);
 
-    std::string parseLabel(std::string strLabel);
-    std::string parseOperacao(std::string strOperacao);
-    std::string parseOperando(std::string strOperando);
+    void toLower(std::string);
 
-    void parseLinha(std::string linha);
+    // Operação -p
+    void parseDiretivas(std::string fileStream);
+
+    std::string parseLabel(std::string linha);
+    std::string parseOperacao(std::string linha, bool hasLabel);
+    std::vector<std::string> parseOperando(std::string linha, int numeroDeOperandos, bool hasLabel);
+
+    void parseLinha(std::string linha, int linhaContador, int posicaoContador);
 
     const std::vector<std::string> &getLinhasDoCodigo() const;
 
@@ -34,14 +45,35 @@ public:
     std::vector<std::string> separaEmLinhas(std::string fileString);
     std::string removeComentarios(std::string linha);
     void preparaCodigo();
+    void printLinha(std::string linha);
+    int converteOperandoHexaParaInteiro(std::string operando);
 
     const std::string &getArquivo() const;
-
     void setArquivo(const std::string &arquivo);
 
-    void printLinha(std::string linha);
+
+    bool isParsingMacro() const;
+    void setParsingMacro(bool parsingMacro);
+
+    bool isSectionText() const;
+    void setSectionText(bool sectionText);
+
+    bool isSectionData() const;
+
+    void setSectionData(bool sectionData);
 
 
+    int converteOperandoParaInteiro(std::string operando);
+
+    bool is_number(const std::string& s);
+
+    int getContadorPosicao() const;
+
+    void setContadorPosicao(int contadorPosicao);
+
+    int getContadorLinha() const;
+
+    void setContadorLinha(int contadorLinha);
 };
 
 #endif //T1_SB_LABELPARSE_H

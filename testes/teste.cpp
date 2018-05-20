@@ -84,5 +84,8 @@ int main(int argc, char **argv)
     for (std::vector<std::string>::const_iterator i = stringList.begin(); i != stringList.end(); ++i)
         std::cout << "Lista de strings: " << *i << ' ' << std::endl;
 
+    std::string data = "AAAAAABC";
+    std::transform(data.begin(), data.end(), data.begin(), ::tolower);
+    std::cout << "Data: " << data << std::endl;
     return 0;
 }

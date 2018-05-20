@@ -16,23 +16,11 @@
  */
 
 int main(int argc, char *argv[]) {
-//    std::string sentence = "And: I feel fine...";
-//    std::istringstream iss(sentence);
-//    std::vector<std::string> tokens = {};
-//    tokens.emplace_back("kk");
-//    copy(std::istream_iterator<std::string>(iss),
-//         std::istream_iterator<std::string>(),
-//         back_inserter(tokens));
-//    // Mostra os tokens
-//    for (auto i = tokens.begin(); i != tokens.end(); ++i){
-//        std::cout << *i << '\n';
-//    }
-
 
 #ifdef DEBUG
     // Se estamos em modo de debug, o projeto receberá um arquivo teste para verificar seu funcionamento.
     argv[1] = const_cast<char *>("-p");
-    argv[2] = const_cast<char *>("files/entrada_teste");
+    argv[2] = const_cast<char *>("files/entrada_teste_if_equ");
     argv[3] = const_cast<char *>("files/saida_teste");
     argc = 4;
     std::cout << "Numero de argumentos: " << argc << "\n";
@@ -62,11 +50,6 @@ int main(int argc, char *argv[]) {
             stringstream << fileAssembly.rdbuf();
             ParseLib parseLib(stringstream.str());
             parseLib.preparaCodigo();
-            std::cout << "file" << "\n";
-            std::string line;
-            while(std::getline(fileAssembly, line)){
-                std::cout << line << "\n";
-            }
             fileAssembly.close();
         }
         else {
@@ -75,8 +58,13 @@ int main(int argc, char *argv[]) {
         }
     };
 
-    std::cout << "Aperte qualquer botão para sair: " << std::endl;
-    getchar();
     return 0;
+}
+
+void verificaERealizaOperacao(const std::string &operacao, std::string fileString){
+    if(operacao == "-p"){
+        PreProcessamento preProcessador(fileString);
+        preProcessador.processarDiretivas(fileString);
+    }
 }
 

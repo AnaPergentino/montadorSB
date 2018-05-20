@@ -3,16 +3,23 @@
 //
 
 #include "PreProcessamento.h"
+#include <utility>
 
 void PreProcessamento::processarMacros(std::ifstream arquivo) {
     if(arquivo.is_open()) {
         // Nessa etapa, precisamos processar apenas as macros
     }
-
 }
 
-void PreProcessamento::processarDiretivas(std::ifstream arquivo) {
-    // Nessa etapa, precisamos apenas processar as diretivas IF e EQU.
-    // Para processar IF, precisamos de
-
+void PreProcessamento::processarDiretivas(std::string fileString) {
 }
+
+const std::string &PreProcessamento::getFileString() const {
+    return fileString;
+}
+
+void PreProcessamento::setFileString(const std::string &fileString) {
+    PreProcessamento::fileString = fileString;
+}
+
+PreProcessamento::PreProcessamento(const std::string &fileString) : fileString(fileString) {}
