@@ -4,12 +4,22 @@
 #include <iterator>   // for the back_inserter
 #include <sstream>
 #include <vector>
+#include <regex>
 
 std::string remove_extra_whitespaces(const std::string &input)
 {
     std::string output;
     output.clear();  // unless you want to add at the end of existing sring...
-    unique_copy (input.begin(), input.end(), std::back_insert_iterator<std::string>(output), [](char a,char b){ return isspace(a) && isspace(b);});
+    unique_copy (input.begin(),
+                 input.end(),
+                 std::back_insert_iterator<std::string>(output),
+                 [](char a,char b){ return isspace(a) && isspace(b);});
+
+    std::regex labelComPuloDeLinha("(.+:)(\n)");
+    output = std::regex_replace(output, labelComPuloDeLinha, "$1 ");
+    std::regex labelComLetraLogoAposDoisPontos("(.+:)(.)");
+    output = std::regex_replace(output, labelComLetraLogoAposDoisPontos, "$1 ");
+
     return output;
 }
 
@@ -33,10 +43,10 @@ std::string removeTabulacoes(std::string fileString){
     return fileString;
 }
 
-std::vector<std::string> split_string(const std::string& str,
-                                      const std::string& delimiter)
+std::vector<std::string> split_string(const std::string str)
 {
     std::vector<std::string> strings;
+    std::string delimiter= "\n";
 
     std::string::size_type pos = 0;
     std::string::size_type prev = 0;
@@ -70,11 +80,9 @@ int main(int argc, char **argv)
     saida = removeComentarios(saida);
     std::cout << "Saida sem comentarios: " << saida << std::endl;
 
-    std::vector<std::string> stringList = split_string(saida, "\n");
+    std::vector<std::string> stringList = split_string(saida);
     for (std::vector<std::string>::const_iterator i = stringList.begin(); i != stringList.end(); ++i)
         std::cout << "Lista de strings: " << *i << ' ' << std::endl;
-
-
 
     return 0;
 }

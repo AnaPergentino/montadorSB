@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include "CommandOperations.h"
+#include "PreProcessamento.h"
+#include "ParseLib.h"
 
 /**
  * Checa a extensão do arquivo digitado pelo usuário no segundo parâmetro
@@ -55,8 +57,11 @@ int main(int argc, char *argv[]) {
 
         // Abre o arquivo e lê linha a linha:
         std::fstream fileAssembly(comando.getArquivoEntrada());
+        std::stringstream stringstream;
         if  (fileAssembly.is_open()) {
-            std::cout << "abriu saporra" << "\n";
+            stringstream << fileAssembly.rdbuf();
+            ParseLib parseLib(stringstream.str());
+            parseLib.preparaCodigo();
             std::cout << "file" << "\n";
             std::string line;
             while(std::getline(fileAssembly, line)){
@@ -70,6 +75,8 @@ int main(int argc, char *argv[]) {
         }
     };
 
+    std::cout << "Aperte qualquer botão para sair: " << std::endl;
+    getchar();
     return 0;
 }
 
