@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "TabelaSimbolos.h"
+#include "Montador.h"
 
 class ParseLib{
 protected:
@@ -32,7 +33,7 @@ public:
     std::string parseOperacao(std::string linha, bool hasLabel);
     std::vector<std::string> parseOperando(std::string linha, int numeroDeOperandos, bool hasLabel);
 
-    void parseLinha(std::string linha, int linhaContador, int posicaoContador);
+    Montador::TokensDaLinha parseLinha(std::string linha, int linhaContador, int posicaoContador);
 
     const std::vector<std::string> &getLinhasDoCodigo() const;
 

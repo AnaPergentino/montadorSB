@@ -7,6 +7,7 @@
 #include "ParseLib.h"
 #include "TabelaLib.h"
 #include "ErrorLib.h"
+#include "Montador.h"
 
 std::string ParseLib::parseLabel(std::string linha) {
     std::string label;
@@ -62,7 +63,7 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
     if (hasLabel) {
         if (numeroDeOperandos == 0) { // Caso de algumas diretivas
             if (operandosString.size() > 2) {
-                std::cout << "Erro! Número incorreto de operandos!" << std::endl;
+                ErrorLib errorLib(contadorLinha, "Número incorreto de operandos!", "Sintático");
             }
         } else if (numeroDeOperandos == 1) { // Todos os outros
             operandosString.push_back(tokensLinhas[2]);
@@ -91,8 +92,7 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
             std::string op1, op2;
             std::string::size_type virgulaPos = tokensLinhas[1].find(',');
             if (tokensLinhas[virgulaPos + 1] == " ") {
-                std::cout << "Erro! Operandos de COPY estão separados com uma vírgula com espaço!" << std::endl;
-                exit(0);
+                ErrorLib errorLib(contadorLinha, "Operandos de COPY estão separados com uma vírgula com espaço!", "Léxico");
             }
             op1 = tokensLinhas[1].substr(0, tokensLinhas[1].find(','));
             op2 = tokensLinhas[1].substr(tokensLinhas[1].find(','), tokensLinhas[1].size());
@@ -138,7 +138,7 @@ std::string ParseLib::removeComentarios(std::string linha) {
     }
 }
 
-void ParseLib::parseLinha(std::string linha, int linhaContador, int contadorPosicao) {
+Montador::TokensDaLinha ParseLib::parseLinha(std::string linha, int linhaContador, int contadorPosicao) {
     TabelaLib tabelaLib;
 
     // Faz a separação dos tokens de uma linha, podemos ter 3 opções:
@@ -168,6 +168,7 @@ void ParseLib::parseLinha(std::string linha, int linhaContador, int contadorPosi
     // Para obtermos a operação, simplesmente precisamos verificar se uma label foi declarada, caso não tenha sido, o
     // primeiro elemento daquela linha será a operação
     std::string labelOperacao = parseOperacao(linha, !labelLinha.empty());
+    std::vector<std::string> labelOperandos;
 
     if (tabelaLib.isDiretiva(labelOperacao)) {
         InfoDeDiretivas infoDeDiretivas = tabelaLib.getDiretiva(labelOperacao);
@@ -186,7 +187,7 @@ void ParseLib::parseLinha(std::string linha, int linhaContador, int contadorPosi
 //        std::cout << "tamanho: " << infoDeDiretivas.tamanho << std::endl ;
 //        std::cout << "isPre: " << infoDeDiretivas.isPre << std::endl << std::endl;
 
-        std::vector<std::string> labelOperandos =
+        labelOperandos =
                 parseOperando(linha, infoDeDiretivas.numeroDeOperandos, !labelLinha.empty());
         // DEBUG Operando
         for (auto &labelOperando : labelOperandos) {
@@ -203,26 +204,17 @@ void ParseLib::parseLinha(std::string linha, int linhaContador, int contadorPosi
 //        std::cout << "Instrucao: " << infoDeInstrucoes.opcodesInstrucoes << std::endl;
 //        std::cout << "Numero de operandos: " << infoDeInstrucoes.numeroDeOperandos << std::endl;
 //        std::cout << "Tamanho: " << infoDeInstrucoes.tamanho << std::endl << std::endl;
-        std::vector<std::string> labelOperandos =
-                parseOperando(linha, infoDeInstrucoes.numeroDeOperandos, !labelLinha.empty());
+        labelOperandos = parseOperando(linha, infoDeInstrucoes.numeroDeOperandos, !labelLinha.empty());
         // DEBUG Operando
         for (auto &labelOperando : labelOperandos) {
             std::cout << "Operando: " << labelOperando << std::endl;
         }
 //        setContadorPosicao(contadorPosicao + infoDeInstrucoes.tamanho);
     }// else if ( tabelaLib.isMacro()){}// TODO: Implementar esse caso, checando se a macro já existe na MDT E MNT
-
     else {
         ErrorLib errorLib(linhaContador, "Operação inexistente", "Léxico");
     }
-
-    // Análise sintática...?
-    // Verificamos aqui se a operação é space ou const, e então, com o operando atualizamos o valor de um símbolo já
-    // identificado na tabela de simbolos, ou criamos o símbolo e inserimos esses valores de endereço
-
-//    setContadorLinha(contadorLinha++);
-
-
+    return Montador::TokensDaLinha(labelLinha, labelOperacao, labelOperandos, linhaContador);
 }
 
 
@@ -276,12 +268,35 @@ void ParseLib::preparaCodigo() {
     int contadorLinha = 1;
     setContadorLinha(contadorLinha);
     int contadorPosicao = 0;
+    std::vector<Montador::TokensDaLinha> listTokensDaLinha;
     setContadorPosicao(contadorPosicao);
-    for (auto i = codeLines.begin(); i != codeLines.end(); ++i) {
+    for (auto &codeLine : codeLines) {
         contadorPosicao = getContadorPosicao();
         contadorLinha = getContadorLinha();
-        parseLinha(*i, contadorLinha, contadorPosicao);
+        Montador::TokensDaLinha tokensDaLinha = parseLinha(codeLine, contadorLinha, contadorPosicao);
+
+        listTokensDaLinha.push_back(tokensDaLinha);
+//        Montador::TokensDaLinha tokensDaLinha(parseLinha(*i, contadorLinha, contadorPosicao));
+//        std::cout << "Label: "<< tokensDaLinha.label << std::endl;
+//        std::cout << "Operacao: "<< tokensDaLinha.operacao << std::endl;
+//        std::cout << "Operandos: "<< tokensDaLinha.label << std::endl;
+//        std::cout << "Numero da Linha: "<< tokensDaLinha.numeroDaLinha << std::endl << std::endl;
     }
+    for(int i = 0; i < listTokensDaLinha.size(); i++){
+        std::cout << "Label: "<< listTokensDaLinha[i].label << std::endl;
+        std::cout << "Operacao: "<< listTokensDaLinha[i].operacao << std::endl;
+        std::cout << "Operandos: "<< listTokensDaLinha[i].label << std::endl;
+        std::cout << "Numero da Linha: "<< listTokensDaLinha[i].numeroDaLinha << std::endl << std::endl;
+    }
+
+//    std::vector<Montador::TokensDaLinha> tokensDaLinhaVector = montador.getListaDeTokensDoArquivo();
+//    std::cout << "Vector size: " << tokensDaLinhaVector.size() << std::endl;
+//    for(int i = 0 ; i < tokensDaLinhaVector.size(); i++){
+//        std::cout << "Label: "<< tokensDaLinhaVector[i].label << std::endl;
+//        std::cout << "Operacao: "<< tokensDaLinhaVector[i].operacao << std::endl;
+//        std::cout << "Operandos: "<< tokensDaLinhaVector[i].label << std::endl;
+//        std::cout << "Numero da Linha: "<< tokensDaLinhaVector[i].numeroDaLinha << std::endl << std::endl;
+//    }
 }
 
 const std::vector<std::string> &ParseLib::getLinhasDoCodigo() const {
