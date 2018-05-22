@@ -34,11 +34,14 @@ std::unordered_map<std::string, InfoDeDiretivas> TabelaLib::TabelaDeDiretivas{
         {"const" , {1,1, CONST, bool(false)}},
         {"equ", {1,0,EQU, bool(true)}},
         {"if", {1,0, IF, bool(true)}},
-        {"macro", {0,0, MACRO, bool(false)}},
+        {"macro", {-1,0, MACRO, bool(false)}},
         {"endmacro", {0,0, ENDMACRO, bool(false)}}
 };
 
 std::unordered_map<std::string, InfoDeSimbolo> TabelaLib::TabelaDeSimbolos;
+std::unordered_map<std::string, InfoMacroDef> MacroDefinitionTable;
+std::unordered_map<std::string, InfoMacroName> MacroNameTable;
+
 
 bool TabelaLib::isDiretiva(std::string operacao) {
     // Obtém os valores da lista de diretiva e verifica pelo valor da key se é uma diretiva
@@ -89,3 +92,8 @@ void TabelaLib::setTabelaDeSimbolos(const std::unordered_map<std::string, InfoDe
 InfoDeSimbolo TabelaLib::obtemSimboloNaTabelaDeSimbolos(std::string id) {
     return TabelaLib::TabelaDeSimbolos.at(id);
 }
+
+InfoMacroName::InfoMacroName(int numeroDeArgumentos, int endereco) : numeroDeArgumentos(numeroDeArgumentos),
+                                                                     endereco(endereco) {}
+
+InfoMacroDef::InfoMacroDef(const std::vector<Montador::TokensDaLinha> &tokensDaLinha) : tokensDaLinha(tokensDaLinha) {}

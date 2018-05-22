@@ -18,8 +18,9 @@ private:
 public:
     void processarDiretivasEMacros(std::string nomeArquivoDeSaida);
     void processarDiretivas(std::string nomeArquivoDeSaida);
-    void gerarCodigoDeSaidaDiretivas(std::string nomeArquivoDeSaida);
-    void gerarCodigoDeSaidaMacros(std::string nomeArquivoDeSaida);
+    void gerarCodigoDeSaidaDiretivas(std::string nomeArquivoSaida);
+    void gerarCodigoDeSaidaMacros(std::string nomeArquivoSaida);
+    void gerarCodigoDeSaida(std::string nomeArquivoSaida);
     void montarCodigo(std::ifstream arquivo);
 
     const std::vector<Montador::TokensDaLinha> &getTokensDaLinhaList() const;

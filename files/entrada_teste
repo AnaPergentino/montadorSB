@@ -2,10 +2,10 @@ L1:	EQU 1
 L2: EQU 1
 LOAD N
 SECTION TEXT ;comentarios
-TESTE: MACRO
-       LOAD N
-       INPUT N
-       INPUT X
+TESTE: MACRO &A, &B, &C
+       LOAD &A
+       INPUT &B
+       INPUT &C
        ENDMACRO
 IF L1
 LOAD N ;faz esta operação se L1 for verdadeiro

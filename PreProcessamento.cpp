@@ -31,7 +31,6 @@ void PreProcessamento::processarDiretivas(std::string nomeArquivoSaida) {
     // Cópia das linhas tokenizadas do código, como se o if for falso a linha seguinte não será processada,
     // ela será removida da saída
     std::vector<Montador::TokensDaLinha> tokensDaLinhaSaida = getTokensDaLinhaList();
-    // Arquivo de saída .pre
 
     bool isSectionText = false;
     bool isSectionData = false;
@@ -41,54 +40,57 @@ void PreProcessamento::processarDiretivas(std::string nomeArquivoSaida) {
 
     int fatorDeCorrecao = 0;
 
-    for(int i=0; i < tokensDaLinha.size(); i++) {
+    for (int i = 0; i < tokensDaLinha.size(); i++) {
         Montador::TokensDaLinha copiaLinha = tokensDaLinha[i];
-        if(tokensDaLinha[i].operacao == "section"){
+        if (tokensDaLinha[i].operacao == "section") {
             // Checa se o operando é .text ou .data
-                if(tokensDaLinha[i].operando[0] == "text"){
-                    // Ativa o booleano que impede que diretivas como EQU estejam no text
-                   isSectionText = true;
-                } else if(tokensDaLinha[i].operando[0] == "data"){
-                    if(!isSectionText){
-                        //Erro: seção data veio antes da seção teste
-                        ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Seção DATA veio antes da seção TEXT", "Sintático");
-                    } else{
-                        isSectionText = false;
-                        isSectionData = true;
-                    }
+            if (tokensDaLinha[i].operando[0] == "text") {
+                // Ativa o booleano que impede que diretivas como EQU estejam no text
+                isSectionText = true;
+            } else if (tokensDaLinha[i].operando[0] == "data") {
+                if (!isSectionText) {
+                    //Erro: seção data veio antes da seção teste
+                    ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Seção DATA veio antes da seção TEXT",
+                                      "Sintático");
+                } else {
+                    isSectionText = false;
+                    isSectionData = true;
                 }
+            }
         }
 
-        if(tokensDaLinha[i].operacao == "equ" && (!isSectionText && !isSectionData)){
+        if (tokensDaLinha[i].operacao == "equ" && (!isSectionText && !isSectionData)) {
             // Adicionar a label à Tabela de Símbolos
 
             InfoDeDiretivas infoDeDiretivas = tabelaLib.getDiretiva(tokensDaLinha[i].operacao);
             int valor = parseLib.converteOperandoParaInteiro(tokensDaLinha[i].operando[0]);
-            if(!tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operacao)) {
-                tabelaLib.insereSimboloNaTabelaDeSimbolos(tokensDaLinha[i].label, InfoDeSimbolo(contadorPosicao, -1, true, valor));
+            if (!tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operacao)) {
+                tabelaLib.insereSimboloNaTabelaDeSimbolos(tokensDaLinha[i].label,
+                                                          InfoDeSimbolo(contadorPosicao, -1, true, valor));
                 // Após a inserção, removemos essa linha, pois ela não entrará no arquivo de saída:
-                tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin()+(i-fatorDeCorrecao));
+                tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
                 fatorDeCorrecao++;
 
             } else {
                 ErrorLib elib(tokensDaLinha[i].numeroDaLinha, "Redeclaração de flag para EQU", "Léxico");
             }
 
-        } else if(tokensDaLinha[i].operacao == "equ" && (isSectionText || isSectionData)){
-            ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Operando equ dentro da section text ou data!", "Sintático");
+        } else if (tokensDaLinha[i].operacao == "equ" && (isSectionText || isSectionData)) {
+            ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Operando equ dentro da section text ou data!",
+                              "Sintático");
         }
 
-        if(tokensDaLinha[i].operacao == "if" && isSectionText) {
-            tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin()+(i-fatorDeCorrecao));
+        if (tokensDaLinha[i].operacao == "if" && isSectionText) {
+            tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
             std::cout << "Linha: " << tokensDaLinha[i].numeroDaLinha << std::endl;
             // Procura na tabela de símbolos se o símbolo já foi definido anteriormente
-            if(tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operando[0])){
+            if (tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operando[0])) {
                 InfoDeSimbolo infoSimbolo = tabelaLib.obtemSimboloNaTabelaDeSimbolos(tokensDaLinha[i].operando[0]);
-                if(infoSimbolo.valorConstante != 1) {
+                if (infoSimbolo.valorConstante != 1) {
                     // Se a comparação for diferente de 1, a próxima linha não será executada, logo podemos removê-la
                     // dos tokens de linha do resultado
-                    tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin()+(i-fatorDeCorrecao));
-                    fatorDeCorrecao+=2;
+                    tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
+                    fatorDeCorrecao += 2;
                 } else {
                     fatorDeCorrecao++;
                 }
@@ -96,30 +98,24 @@ void PreProcessamento::processarDiretivas(std::string nomeArquivoSaida) {
         }
     }
     // Recalculamos o número de linhas:
-    for(int it = 0; it < tokensDaLinhaSaida.size(); it++) {
-        tokensDaLinhaSaida[it].numeroDaLinha = it+1;
+    for (int it = 0; it < tokensDaLinhaSaida.size(); it++) {
+        tokensDaLinhaSaida[it].numeroDaLinha = it + 1;
+        // No mesmo loop, aproveitamos para fazer a substituição de valores caso as labels de diretivas estejam sendo
+        // usadas como operandos
+        for (int j = 0; j < tokensDaLinhaSaida[it].operando.size(); j++) {
+            std::string operando = tokensDaLinhaSaida[it].operando[j];
+            if (tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(operando)) {
+                tokensDaLinha[it].operando[j] = std::to_string(
+                        tabelaLib.obtemSimboloNaTabelaDeSimbolos(operando).valorConstante);
+            }
+        }
     }
     setTokensDaLinhaList(tokensDaLinhaSaida);
     gerarCodigoDeSaidaDiretivas(nomeArquivoSaida);
 }
 
-void PreProcessamento::gerarCodigoDeSaidaDiretivas(std::string nomeArquivoDeSaida) {
-    std::vector<Montador::TokensDaLinha> tokensDaLinha = getTokensDaLinhaList();
-    std::ofstream arquivoSaida(nomeArquivoDeSaida+".pre");
-    for (const auto &e : tokensDaLinha){
-        if(e.label!="") {
-            arquivoSaida << e.label << ": ";
-        }
-        arquivoSaida << e.operacao << " ";
-        if(e.operando.size() != 0){
-            if(e.operando.size() == 1){
-                arquivoSaida << e.operando[0] << "\n";
-            } else { // tamanho 2(Copy)
-                arquivoSaida << e.operando[0] << "," << e.operando[1] << "\n";
-            }
-        }
-    }
-    arquivoSaida.close();
+void PreProcessamento::gerarCodigoDeSaidaDiretivas(std::string nomeArquivoSaida) {
+    gerarCodigoDeSaida(nomeArquivoSaida+".pre");
 }
 
 void PreProcessamento::processarDiretivasEMacros(std::string nomeArquivoSaida) {
@@ -127,64 +123,71 @@ void PreProcessamento::processarDiretivasEMacros(std::string nomeArquivoSaida) {
     // Cópia das linhas tokenizadas do código, como se o if for falso a linha seguinte não será processada,
     // ela será removida da saída
     std::vector<Montador::TokensDaLinha> tokensDaLinhaSaida = getTokensDaLinhaList();
-    // Arquivo de saída .pre
 
     bool isSectionText = false;
     bool isSectionData = false;
+    bool parsingMacro = false;
     int contadorPosicao = 0;
     ParseLib parseLib("lalala");
     TabelaLib tabelaLib;
 
     int fatorDeCorrecao = 0;
 
-    for(int i=0; i < tokensDaLinha.size(); i++) {
+    for (int i = 0; i < tokensDaLinha.size(); i++) {
         Montador::TokensDaLinha copiaLinha = tokensDaLinha[i];
-        if(tokensDaLinha[i].operacao == "section"){
+        if (tokensDaLinha[i].operacao == "section") {
             // Checa se o operando é .text ou .data
-            if(tokensDaLinha[i].operando[0] == "text"){
+            if (tokensDaLinha[i].operando[0] == "text") {
                 // Ativa o booleano que impede que diretivas como EQU estejam no text
                 isSectionText = true;
-            } else if(tokensDaLinha[i].operando[0] == "data"){
-                if(!isSectionText){
+            } else if (tokensDaLinha[i].operando[0] == "data") {
+                if (!isSectionText) {
                     //Erro: seção data veio antes da seção teste
-                    ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Seção DATA veio antes da seção TEXT", "Sintático");
-                } else{
+                    ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Seção DATA veio antes da seção TEXT",
+                                      "Sintático");
+                } else {
                     isSectionText = false;
                     isSectionData = true;
                 }
             }
         }
 
-        if(tokensDaLinha[i].operacao == "equ" && (!isSectionText && !isSectionData)){
+        if (tokensDaLinha[i].operacao == "macro") {
+            // TODO: Implementar MDT e MNT
+        }
+
+        if (tokensDaLinha[i].operacao == "equ" && (!isSectionText && !isSectionData)) {
             // Adicionar a label à Tabela de Símbolos
 
             InfoDeDiretivas infoDeDiretivas = tabelaLib.getDiretiva(tokensDaLinha[i].operacao);
             int valor = parseLib.converteOperandoParaInteiro(tokensDaLinha[i].operando[0]);
-            if(!tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operacao)) {
-                tabelaLib.insereSimboloNaTabelaDeSimbolos(tokensDaLinha[i].label, InfoDeSimbolo(contadorPosicao, -1, true, valor));
+            if (!tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operacao)) {
+                tabelaLib.insereSimboloNaTabelaDeSimbolos(tokensDaLinha[i].label,
+                                                          InfoDeSimbolo(contadorPosicao, -1, true, valor));
                 // Após a inserção, removemos essa linha, pois ela não entrará no arquivo de saída:
-                tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin()+(i-fatorDeCorrecao));
+                tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
                 fatorDeCorrecao++;
 
             } else {
                 ErrorLib elib(tokensDaLinha[i].numeroDaLinha, "Redeclaração de flag para EQU", "Léxico");
             }
 
-        } else if(tokensDaLinha[i].operacao == "equ" && (isSectionText || isSectionData)){
-            ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Operando equ dentro da section text ou data!", "Sintático");
+        } else if (tokensDaLinha[i].operacao == "equ" && (isSectionText || isSectionData)) {
+            ErrorLib errorLib(tokensDaLinha[i].numeroDaLinha, "Operando equ dentro da section text ou data!",
+                              "Sintático");
         }
 
-        if(tokensDaLinha[i].operacao == "if" && isSectionText) {
-            tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin()+(i-fatorDeCorrecao));
+        if (tokensDaLinha[i].operacao == "if" && isSectionText) {
+            tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
             std::cout << "Linha: " << tokensDaLinha[i].numeroDaLinha << std::endl;
             // Procura na tabela de símbolos se o símbolo já foi definido anteriormente
-            if(tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operando[0])){
+            if (tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operando[0])) {
                 InfoDeSimbolo infoSimbolo = tabelaLib.obtemSimboloNaTabelaDeSimbolos(tokensDaLinha[i].operando[0]);
-                if(infoSimbolo.valorConstante != 1) {
+                if (infoSimbolo.valorConstante != 1) {
                     // Se a comparação for diferente de 1, a próxima linha não será executada, logo podemos removê-la
                     // dos tokens de linha do resultado
-                    tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin()+(i-fatorDeCorrecao));
-                    fatorDeCorrecao+=2;
+                    tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
+                    fatorDeCorrecao += 2;
                 } else {
                     fatorDeCorrecao++;
                 }
@@ -192,27 +195,49 @@ void PreProcessamento::processarDiretivasEMacros(std::string nomeArquivoSaida) {
         }
     }
     // Recalculamos o número de linhas:
-    for(int it = 0; it < tokensDaLinhaSaida.size(); it++) {
-        tokensDaLinhaSaida[it].numeroDaLinha = it+1;
+    for (int it = 0; it < tokensDaLinhaSaida.size(); it++) {
+        tokensDaLinhaSaida[it].numeroDaLinha = it + 1;
+        // No mesmo loop, aproveitamos para fazer a substituição de valores caso as labels de diretivas estejam sendo
+        // usadas como operandos
+        for (int j = 0; j < tokensDaLinhaSaida[it].operando.size(); j++) {
+            std::string operando = tokensDaLinhaSaida[it].operando[j];
+            if (tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(operando)) {
+                tokensDaLinha[it].operando[j] = std::to_string(
+                        tabelaLib.obtemSimboloNaTabelaDeSimbolos(operando).valorConstante);
+            }
+        }
     }
     setTokensDaLinhaList(tokensDaLinhaSaida);
     gerarCodigoDeSaidaMacros(nomeArquivoSaida);
 }
 
-void PreProcessamento::gerarCodigoDeSaidaMacros(std::string nomeArquivoDeSaida) {
+void PreProcessamento::gerarCodigoDeSaidaMacros(std::string nomeArquivoSaida) {
+    gerarCodigoDeSaida(nomeArquivoSaida+".mcr");
+}
+
+void PreProcessamento::gerarCodigoDeSaida(std::string nomeArquivoSaida) {
     std::vector<Montador::TokensDaLinha> tokensDaLinha = getTokensDaLinhaList();
-    std::ofstream arquivoSaida(nomeArquivoDeSaida+".mcr");
-    for (const auto &e : tokensDaLinha){
-        if(e.label!="") {
+    std::ofstream arquivoSaida(nomeArquivoSaida);
+    for (const auto &e : tokensDaLinha) {
+        if (e.label != "") {
             arquivoSaida << e.label << ": ";
         }
         arquivoSaida << e.operacao << " ";
-        if(e.operando.size() != 0){
-            if(e.operando.size() == 1){
+        if (e.operando.size() != 0) {
+            if (e.operando.size() == 1) {
                 arquivoSaida << e.operando[0] << "\n";
-            } else { // tamanho 2(Copy)
-                arquivoSaida << e.operando[0] << "," << e.operando[1] << "\n";
+            } else { // COPY E MACRO
+                for (int j = 0; j < e.operando.size(); j++) {
+                    if (j == e.operando.size()-1) {
+                        arquivoSaida << e.operando[j] << "\n";
+                    } else {
+                        arquivoSaida << e.operando[j] << ",";
+                    }
+
+                }
             }
+        } else {
+            arquivoSaida  << "\n";
         }
     }
     arquivoSaida.close();

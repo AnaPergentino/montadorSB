@@ -75,12 +75,32 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
             op2 = tokensLinhas[2].substr(tokensLinhas[2].find(','), tokensLinhas[2].size());
             operandosString.push_back(op1);
             operandosString.push_back(op2);
-        } else if (numeroDeOperandos == -1) { // Caso do SPACE
-            // Devemos verificar se a última string da linha a próxima string é um número, caso contrário, o operando
-            // é 1, já que o espaço não foi definido explicitamente
-            if (tokensLinhas.size() == 3) {
-                operandosString.push_back(tokensLinhas[2]);
-            } else { operandosString.push_back("1"); }
+        } else if (numeroDeOperandos == -1) { // Caso do SPACE e MACRO
+            // Macro obrigatoriamente tem uma label antes, para identificá-la
+            // Faremos uma iteração pela string que pegará o número de parâmetros separados por vírgula
+            // Para diferenciar, precisaremos pegar o nome da operação, que aqui está, invariavelmente,
+            // em tokensLinhas[1].
+            std::string operacao = tokensLinhas[1];
+            if (operacao == "macro") {
+                // Os operandos começam(se existirem) a partir do tokensLinhas[2], e estão separados por vírgula e espaço
+                std::string::size_type tamanho = tokensLinhas.size();
+                if(tamanho>2){
+                    for (int it = 2; it < tamanho; it++) {
+                        std::string::size_type posicaoVirgula = tokensLinhas[it].find(',');
+                        if(posicaoVirgula != std::string::npos){
+                            std::string operandoSemVirgula = tokensLinhas[it].substr(0, posicaoVirgula);
+                            operandosString.push_back(operandoSemVirgula);
+                        } else {
+                            operandosString.push_back(tokensLinhas[it]);
+                        }
+                    }
+                }
+            }
+            if (operacao == "space") {
+                if (tokensLinhas.size() == 3) {
+                    operandosString.push_back(tokensLinhas[2]);
+                } else { operandosString.push_back("1"); }
+            }
         }
         // Caso sem label, tokens relativos diminuem em uma posição no vetor
     } else {
@@ -93,7 +113,8 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
             std::string op1, op2;
             std::string::size_type virgulaPos = tokensLinhas[1].find(',');
             if (tokensLinhas[virgulaPos + 1] == " ") {
-                ErrorLib errorLib(contadorLinha, "Operandos de COPY estão separados com uma vírgula com espaço!", "Léxico");
+                ErrorLib errorLib(contadorLinha, "Operandos de COPY estão separados com uma vírgula com espaço!",
+                                  "Léxico");
             }
             op1 = tokensLinhas[1].substr(0, tokensLinhas[1].find(','));
             op2 = tokensLinhas[1].substr(tokensLinhas[1].find(','), tokensLinhas[1].size());
@@ -173,14 +194,6 @@ Montador::TokensDaLinha ParseLib::parseLinha(std::string linha, int linhaContado
 
     if (tabelaLib.isDiretiva(labelOperacao)) {
         InfoDeDiretivas infoDeDiretivas = tabelaLib.getDiretiva(labelOperacao);
-//        TODO: Realocar essa parte do método em outro lugar
-//        if (labelOperacao == "macro") {
-//            // Adicionar label da mesma linha no MNT
-//            // Verificar o número de operandos
-//            //TODO: Implementar MDT e MNT
-//        } else if (labelOperacao == "section") {
-//            // TODO: Implementar SECTION
-//        }
         // DEBUG Diretiva
 //        std::cout << "infos de diretiva: " << std::endl;
 //        std::cout << "diretiva: " << infoDeDiretivas.diretivasDiretivas << std::endl;
@@ -281,12 +294,12 @@ void ParseLib::preparaCodigo() {
 //        std::cout << "Numero da Linha: "<< tokensDaLinha.numeroDaLinha << std::endl << std::endl;
     }
     for (auto &i : listTokensDaLinha) {
-        std::cout << "Label: "<< i.label << std::endl;
+        std::cout << "Label: " << i.label << std::endl;
         std::cout << "Operacao: " << i.operacao << std::endl;
-        for(auto it = i.operando.begin(); it!= i.operando.end(); ++it){
-            std::cout << "Operando: "<< *it << std::endl;
+        for (auto it = i.operando.begin(); it != i.operando.end(); ++it) {
+            std::cout << "Operando: " << *it << std::endl;
         }
-        std::cout << "Numero da Linha: "<< i.numeroDaLinha << std::endl << std::endl;
+        std::cout << "Numero da Linha: " << i.numeroDaLinha << std::endl << std::endl;
     }
     PreProcessamento preProcessamento(listTokensDaLinha);
     preProcessamento.processarDiretivasEMacros("blabla");

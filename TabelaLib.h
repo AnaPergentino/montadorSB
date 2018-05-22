@@ -11,6 +11,7 @@
 #include <array>
 #include <algorithm>
 #include <unordered_map>
+#include "Montador.h"
 
 // Para essa classe precisamos definir 2 tabelas estáticas e uma dinâmica:
 // 1. Tabela de Diretivas
@@ -71,6 +72,18 @@ struct InfoDeSimbolo {
                         // -1 significa valor indefinido
                         InfoDeSimbolo(int endereco, int espaco, bool isConstante, int valorConstante);
 };
+struct InfoMacroDef{
+    std::vector<Montador::TokensDaLinha> tokensDaLinha;
+
+    InfoMacroDef(const std::vector<Montador::TokensDaLinha> &tokensDaLinha);
+};
+
+struct InfoMacroName{
+    int numeroDeArgumentos;
+    int endereco;
+
+    InfoMacroName(int numeroDeArgumentos, int endereco);
+};
 
 class TabelaLib {
 public:
@@ -89,12 +102,12 @@ public:
 
 
 private:
-    // Todas são statics pois usarei em várias partes do código
+    // Todas são statics pois usarei em várias partes do código e são de instância única durante a execução
     static std::unordered_map<std::string, InfoDeInstrucoes> TabelaDeInstrucoes;
     static std::unordered_map<std::string, InfoDeDiretivas> TabelaDeDiretivas;
     static std::unordered_map<std::string, InfoDeSimbolo> TabelaDeSimbolos;
-    std::unordered_map<std::string, int> MacroDefinitionTable;
-    std::unordered_map<std::string, int> MacroNameTable;
+    static std::unordered_map<std::string, InfoMacroDef> MacroDefinitionTable;
+    static std::unordered_map<std::string, InfoMacroName> MacroNameTable;
 
 
 };
