@@ -1,9 +1,9 @@
 load n
 section text
 teste: macro &a,&b,&c
-load n
-input n
-input x
+load &a
+input &b
+input &c
 endmacro 
 load n
 input n

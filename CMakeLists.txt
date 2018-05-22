@@ -8,7 +8,7 @@ endif()
 
 set(CMAKE_C_FLAGS_DEBUG '-debug')
 set(CMAKE_C_FLAGS '-debug')
-set(SOURCE_FILES main.cpp #[[Tokenizer.cpp Tokenizer.h]] CommandOperations.cpp CommandOperations.h ParseLib.cpp ParseLib.h TabelaSimbolos.cpp TabelaSimbolos.h PreProcessamento.cpp PreProcessamento.h TabelaLib.cpp TabelaLib.h ErrorLib.cpp ErrorLib.h Montador.cpp Montador.h)
+set(SOURCE_FILES main.cpp CommandOperations.cpp CommandOperations.h ParseLib.cpp ParseLib.h PreProcessamento.cpp PreProcessamento.h TabelaLib.cpp TabelaLib.h ErrorLib.cpp ErrorLib.h Montador.cpp Montador.h)
 add_executable(T1_SB ${SOURCE_FILES})
 
 set(BUILD_2 main_2)

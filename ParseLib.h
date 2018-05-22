@@ -8,7 +8,6 @@
 
 #include <string>
 #include <vector>
-#include "TabelaSimbolos.h"
 #include "Montador.h"
 
 class ParseLib{
@@ -38,8 +37,6 @@ public:
     const std::vector<std::string> &getLinhasDoCodigo() const;
 
     void setLinhasDoCodigo(const std::vector<std::string> &linhasDoCodigo);
-
-    void colocarLabelEmTabelaDeSimbolos(TabelaSimbolos tabelaSimbolos, std::string label);
 
     std::string removeEspacosEmBrancoExtras(const std::string &fileString);
     std::string removeTabulacoes(std::string linha);
