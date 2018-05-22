@@ -16,9 +16,10 @@ public:
 private:
     std::vector<Montador::TokensDaLinha> tokensDaLinhaList;
 public:
-    void processarMacros(std::ifstream arquivo);
+    void processarDiretivasEMacros(std::string nomeArquivoDeSaida);
     void processarDiretivas(std::string nomeArquivoDeSaida);
-    void gerarCodigoDeSaida(std::string nomeArquivoDeSaida);
+    void gerarCodigoDeSaidaDiretivas(std::string nomeArquivoDeSaida);
+    void gerarCodigoDeSaidaMacros(std::string nomeArquivoDeSaida);
     void montarCodigo(std::ifstream arquivo);
 
     const std::vector<Montador::TokensDaLinha> &getTokensDaLinhaList() const;

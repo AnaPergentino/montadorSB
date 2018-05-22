@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUG
     // Se estamos em modo de debug, o projeto receberá um arquivo teste para verificar seu funcionamento.
     argv[1] = const_cast<char *>("-p");
-    argv[2] = const_cast<char *>("files/entrada_teste_if_equ");
+    argv[2] = const_cast<char *>("files/entrada_teste");
     argv[3] = const_cast<char *>("files/saida_teste");
     argc = 4;
     std::cout << "Numero de argumentos: " << argc << "\n";

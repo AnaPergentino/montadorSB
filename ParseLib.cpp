@@ -289,7 +289,7 @@ void ParseLib::preparaCodigo() {
         std::cout << "Numero da Linha: "<< i.numeroDaLinha << std::endl << std::endl;
     }
     PreProcessamento preProcessamento(listTokensDaLinha);
-    preProcessamento.processarDiretivas("blabla.pre");
+    preProcessamento.processarDiretivasEMacros("blabla");
 }
 
 const std::vector<std::string> &ParseLib::getLinhasDoCodigo() const {
