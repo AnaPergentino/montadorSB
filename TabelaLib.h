@@ -69,36 +69,33 @@ struct InfoDeSimbolo {
     bool isConstante; // false funcionará para
     int valorConstante; // Talvez não seja necessário, já que o .o não faz cálculos com o valor absoluto da constante
                         // -1 significa valor indefinido
-
-    InfoDeSimbolo(int valor, int espaco, bool isConstante, int valorConstante) :
-    endereco(valor),
-    espaco(1),
-    valorConstante(0),
-    isConstante(false) {};
+                        InfoDeSimbolo(int endereco, int espaco, bool isConstante, int valorConstante);
 };
 
 class TabelaLib {
 public:
-    static std::unordered_map<std::string, InfoDeSimbolo> TabelaDeSimbolos;
-    static std::unordered_map<std::string, int> MacroDefinitionTable;
-    static std::unordered_map<std::string, int> MacroNameTable;
-
     bool isDiretiva(std::string operacao);
     InfoDeDiretivas getDiretiva(std::string operacao);
     bool isInstrucao(std::string operacao);
     InfoDeInstrucoes getInstrucao(std::string operacao);
 
-//    void insereSimboloNaTabelaDeSimbolos(std::string, InfoDeSimbolo);
-//    bool rotuloJaExistenteNaTabelaDeSimbolos(std::string);
+    void insereSimboloNaTabelaDeSimbolos(std::string, InfoDeSimbolo);
+    InfoDeSimbolo obtemSimboloNaTabelaDeSimbolos(std::string id);
+    bool rotuloJaExistenteNaTabelaDeSimbolos(std::string);
 
-    static const std::unordered_map<std::string, InfoDeSimbolo> &getTabelaDeSimbolos();
+    const std::unordered_map<std::string, InfoDeSimbolo> &getTabelaDeSimbolos() const;
 
-    static void setTabelaDeSimbolos(const std::unordered_map<std::string, InfoDeSimbolo> &TabelaDeSimbolos);
+    void setTabelaDeSimbolos(const std::unordered_map<std::string, InfoDeSimbolo> &TabelaDeSimbolos);
+
 
 private:
     // Todas são statics pois usarei em várias partes do código
     static std::unordered_map<std::string, InfoDeInstrucoes> TabelaDeInstrucoes;
     static std::unordered_map<std::string, InfoDeDiretivas> TabelaDeDiretivas;
+    static std::unordered_map<std::string, InfoDeSimbolo> TabelaDeSimbolos;
+    std::unordered_map<std::string, int> MacroDefinitionTable;
+    std::unordered_map<std::string, int> MacroNameTable;
+
 
 };
 

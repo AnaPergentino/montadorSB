@@ -8,6 +8,7 @@
 #include "TabelaLib.h"
 #include "ErrorLib.h"
 #include "Montador.h"
+#include "PreProcessamento.h"
 
 std::string ParseLib::parseLabel(std::string linha) {
     std::string label;
@@ -187,8 +188,7 @@ Montador::TokensDaLinha ParseLib::parseLinha(std::string linha, int linhaContado
 //        std::cout << "tamanho: " << infoDeDiretivas.tamanho << std::endl ;
 //        std::cout << "isPre: " << infoDeDiretivas.isPre << std::endl << std::endl;
 
-        labelOperandos =
-                parseOperando(linha, infoDeDiretivas.numeroDeOperandos, !labelLinha.empty());
+        labelOperandos = parseOperando(linha, infoDeDiretivas.numeroDeOperandos, !labelLinha.empty());
         // DEBUG Operando
         for (auto &labelOperando : labelOperandos) {
             std::cout << "Operando: " << labelOperando << std::endl;
@@ -271,32 +271,25 @@ void ParseLib::preparaCodigo() {
     std::vector<Montador::TokensDaLinha> listTokensDaLinha;
     setContadorPosicao(contadorPosicao);
     for (auto &codeLine : codeLines) {
-        contadorPosicao = getContadorPosicao();
-        contadorLinha = getContadorLinha();
         Montador::TokensDaLinha tokensDaLinha = parseLinha(codeLine, contadorLinha, contadorPosicao);
-
         listTokensDaLinha.push_back(tokensDaLinha);
+        contadorLinha++;
 //        Montador::TokensDaLinha tokensDaLinha(parseLinha(*i, contadorLinha, contadorPosicao));
 //        std::cout << "Label: "<< tokensDaLinha.label << std::endl;
 //        std::cout << "Operacao: "<< tokensDaLinha.operacao << std::endl;
 //        std::cout << "Operandos: "<< tokensDaLinha.label << std::endl;
 //        std::cout << "Numero da Linha: "<< tokensDaLinha.numeroDaLinha << std::endl << std::endl;
     }
-    for(int i = 0; i < listTokensDaLinha.size(); i++){
-        std::cout << "Label: "<< listTokensDaLinha[i].label << std::endl;
-        std::cout << "Operacao: "<< listTokensDaLinha[i].operacao << std::endl;
-        std::cout << "Operandos: "<< listTokensDaLinha[i].label << std::endl;
-        std::cout << "Numero da Linha: "<< listTokensDaLinha[i].numeroDaLinha << std::endl << std::endl;
+    for (auto &i : listTokensDaLinha) {
+        std::cout << "Label: "<< i.label << std::endl;
+        std::cout << "Operacao: " << i.operacao << std::endl;
+        for(auto it = i.operando.begin(); it!= i.operando.end(); ++it){
+            std::cout << "Operando: "<< *it << std::endl;
+        }
+        std::cout << "Numero da Linha: "<< i.numeroDaLinha << std::endl << std::endl;
     }
-
-//    std::vector<Montador::TokensDaLinha> tokensDaLinhaVector = montador.getListaDeTokensDoArquivo();
-//    std::cout << "Vector size: " << tokensDaLinhaVector.size() << std::endl;
-//    for(int i = 0 ; i < tokensDaLinhaVector.size(); i++){
-//        std::cout << "Label: "<< tokensDaLinhaVector[i].label << std::endl;
-//        std::cout << "Operacao: "<< tokensDaLinhaVector[i].operacao << std::endl;
-//        std::cout << "Operandos: "<< tokensDaLinhaVector[i].label << std::endl;
-//        std::cout << "Numero da Linha: "<< tokensDaLinhaVector[i].numeroDaLinha << std::endl << std::endl;
-//    }
+    PreProcessamento preProcessamento(listTokensDaLinha);
+    preProcessamento.processarDiretivas("blabla.pre");
 }
 
 const std::vector<std::string> &ParseLib::getLinhasDoCodigo() const {

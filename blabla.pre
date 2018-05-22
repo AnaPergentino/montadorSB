@@ -1,0 +1,4 @@
+section text
+load n
+section data
+n: space 1

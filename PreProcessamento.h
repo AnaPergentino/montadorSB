@@ -7,27 +7,24 @@
 
 
 #include <fstream>
+#include "Montador.h"
 
 class PreProcessamento {
 public:
-    PreProcessamento(const std::string &fileString);
+    PreProcessamento(const std::vector<Montador::TokensDaLinha> &tokensDaLinhaList);
 
 private:
-    std::string fileString;
+    std::vector<Montador::TokensDaLinha> tokensDaLinhaList;
 public:
     void processarMacros(std::ifstream arquivo);
-    void processarDiretivas(std::string fileString);
+    void processarDiretivas(std::string nomeArquivoDeSaida);
+    void gerarCodigoDeSaida(std::string nomeArquivoDeSaida);
     void montarCodigo(std::ifstream arquivo);
 
-    void processarEQU();
-    bool isEQU(std::string linha);
-    void processarIF();
-    bool isIF(std::string linha);
+    const std::vector<Montador::TokensDaLinha> &getTokensDaLinhaList() const;
 
+    void setTokensDaLinhaList(const std::vector<Montador::TokensDaLinha> &tokensDaLinhaList);
 
-    const std::string &getFileString() const;
-
-    void setFileString(const std::string &fileString);
 };
 
 

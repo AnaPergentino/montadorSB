@@ -61,10 +61,3 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void verificaERealizaOperacao(const std::string &operacao, std::string fileString){
-    if(operacao == "-p"){
-        PreProcessamento preProcessador(fileString);
-        preProcessador.processarDiretivas(fileString);
-    }
-}
-

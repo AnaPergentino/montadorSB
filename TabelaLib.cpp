@@ -29,7 +29,7 @@ std::unordered_map <std::string, InfoDeInstrucoes> TabelaLib::TabelaDeInstrucoes
 };
 
 std::unordered_map<std::string, InfoDeDiretivas> TabelaLib::TabelaDeDiretivas{
-        {"section", {1,0, SECTION, bool(false)}},
+        {"section", {1,1, SECTION, bool(false)}},
         {"space", {-1,-1, SPACE, bool(false)}},
         {"const" , {1,1, CONST, bool(false)}},
         {"equ", {1,0,EQU, bool(true)}},
@@ -37,6 +37,8 @@ std::unordered_map<std::string, InfoDeDiretivas> TabelaLib::TabelaDeDiretivas{
         {"macro", {0,0, MACRO, bool(false)}},
         {"endmacro", {0,0, ENDMACRO, bool(false)}}
 };
+
+std::unordered_map<std::string, InfoDeSimbolo> TabelaLib::TabelaDeSimbolos;
 
 bool TabelaLib::isDiretiva(std::string operacao) {
     // Obtém os valores da lista de diretiva e verifica pelo valor da key se é uma diretiva
@@ -62,11 +64,28 @@ bool TabelaLib::isInstrucao(std::string operacao) {
         }
     }
 }
+InfoDeSimbolo::InfoDeSimbolo(int endereco, int espaco, bool isConstante, int valorConstante) : endereco(endereco),
+                                                                                               espaco(espaco),
+                                                                                               isConstante(isConstante),
+                                                                                               valorConstante(
+                                                                                                       valorConstante) {}
 
-//void TabelaLib::insereSimboloNaTabelaDeSimbolos(std::string key, InfoDeSimbolo infoDeSimbolo) {
-//    TabelaLib::TabelaDeSimbolos.insert(std::make_pair(key, infoDeSimbolo));
-//}
+void TabelaLib::insereSimboloNaTabelaDeSimbolos(std::string key, InfoDeSimbolo infoDeSimbolo) {
+    TabelaLib::TabelaDeSimbolos.insert(std::make_pair(key, infoDeSimbolo));
+}
 
-//bool TabelaLib::rotuloJaExistenteNaTabelaDeSimbolos(std::string rotulo) {
-//    return !(TabelaDeSimbolos.find(rotulo) == TabelaDeSimbolos.end());
-//}
+bool TabelaLib::rotuloJaExistenteNaTabelaDeSimbolos(std::string rotulo) {
+    return !(TabelaLib::TabelaDeSimbolos.find(rotulo) == TabelaLib::TabelaDeSimbolos.end());
+}
+
+const std::unordered_map<std::string, InfoDeSimbolo> &TabelaLib::getTabelaDeSimbolos() const {
+    return TabelaDeSimbolos;
+}
+
+void TabelaLib::setTabelaDeSimbolos(const std::unordered_map<std::string, InfoDeSimbolo> &TabelaDeSimbolos) {
+    TabelaLib::TabelaDeSimbolos = TabelaDeSimbolos;
+}
+
+InfoDeSimbolo TabelaLib::obtemSimboloNaTabelaDeSimbolos(std::string id) {
+    return TabelaLib::TabelaDeSimbolos.at(id);
+}
