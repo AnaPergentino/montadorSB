@@ -115,7 +115,7 @@ void PreProcessamento::gerarCodigoDeSaidaDiretivas(std::string nomeArquivoDeSaid
             if(e.operando.size() == 1){
                 arquivoSaida << e.operando[0] << "\n";
             } else { // tamanho 2(Copy)
-                arquivoSaida << e.operando[1] << "," << e.operando[2] << "\n";
+                arquivoSaida << e.operando[0] << "," << e.operando[1] << "\n";
             }
         }
     }
@@ -211,7 +211,7 @@ void PreProcessamento::gerarCodigoDeSaidaMacros(std::string nomeArquivoDeSaida) 
             if(e.operando.size() == 1){
                 arquivoSaida << e.operando[0] << "\n";
             } else { // tamanho 2(Copy)
-                arquivoSaida << e.operando[1] << "," << e.operando[2] << "\n";
+                arquivoSaida << e.operando[0] << "," << e.operando[1] << "\n";
             }
         }
     }
