@@ -13,7 +13,7 @@ public:
     CommandOperations(std::string operacao, std::string arquivoEntrada, std::string arquivoSaida);
 
     bool verificaOperacao();
-    int verificaExtensaodeArquivoDeEntrada();
+    void verificaExtensaodeArquivoDeEntrada();
 
     bool comandoEValido();
     bool arquivoEValido(std::string file);

@@ -45,8 +45,9 @@ int main(int argc, char *argv[]) {
 
         // Abre o arquivo e lê linha a linha:
         std::fstream fileAssembly(comando.getArquivoEntrada());
-        std::stringstream stringstream;
+
         if  (fileAssembly.is_open()) {
+        std::stringstream stringstream;
             stringstream << fileAssembly.rdbuf();
             ParseLib parseLib(stringstream.str());
             parseLib.preparaCodigo();
@@ -58,6 +59,8 @@ int main(int argc, char *argv[]) {
         }
     };
 
+    std::cout << "Aperte qualquer botão para sair" << std::endl;
+    getchar();
     return 0;
 }
 

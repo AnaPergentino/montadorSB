@@ -49,7 +49,6 @@ public:
     const std::string &getArquivo() const;
     void setArquivo(const std::string &arquivo);
 
-
     bool isParsingMacro() const;
     void setParsingMacro(bool parsingMacro);
 
@@ -59,7 +58,6 @@ public:
     bool isSectionData() const;
 
     void setSectionData(bool sectionData);
-
 
     int converteOperandoParaInteiro(std::string operando);
 

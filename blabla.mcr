@@ -7,8 +7,12 @@ input &c
 endmacro 
 load n
 input n
+load #0
+input #1
+input #2
+load n
+input n
 input x+l2
 section data
 n: space 1
 x: space 3
-load n

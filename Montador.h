@@ -24,6 +24,7 @@ public:
 
     std::vector<TokensDaLinha> listaDeTokensDoArquivo;
 
+    void montarCodigo();
     void analiseLexica(std::vector<TokensDaLinha> listaDeTokensDoArquivo);
     void primeiraPassagem();
 

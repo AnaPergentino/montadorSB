@@ -4,14 +4,14 @@
 
 #include "TabelaLib.h"
 #include <algorithm>
-#include <unordered_map>
+#include <map>
 #include <iostream>
 
 //void TabelaLib::montarTabelaDeDiretivas(std::vector tabelaDeSimbolos) {
 //
 //}
 
-std::unordered_map <std::string, InfoDeInstrucoes> TabelaLib::TabelaDeInstrucoes{
+std::map <std::string, InfoDeInstrucoes> TabelaLib::TabelaDeInstrucoes{
         {"add", {1,2, opcodes::ADD}},
         {"sub", {1,2, opcodes::SUB}},
         {"mult",{1,2, opcodes::MULT}},
@@ -28,7 +28,7 @@ std::unordered_map <std::string, InfoDeInstrucoes> TabelaLib::TabelaDeInstrucoes
         {"stop", {0,1, opcodes::STOP}}
 };
 
-std::unordered_map<std::string, InfoDeDiretivas> TabelaLib::TabelaDeDiretivas{
+std::map<std::string, InfoDeDiretivas> TabelaLib::TabelaDeDiretivas{
         {"section", {1,1, SECTION, bool(false)}},
         {"space", {-1,-1, SPACE, bool(false)}},
         {"const" , {1,1, CONST, bool(false)}},
@@ -38,9 +38,9 @@ std::unordered_map<std::string, InfoDeDiretivas> TabelaLib::TabelaDeDiretivas{
         {"endmacro", {0,0, ENDMACRO, bool(false)}}
 };
 
-std::unordered_map<std::string, InfoDeSimbolo> TabelaLib::TabelaDeSimbolos;
-std::unordered_map<std::string, InfoMacroDef> MacroDefinitionTable;
-std::unordered_map<std::string, InfoMacroName> MacroNameTable;
+std::map<std::string, InfoDeSimbolo> TabelaLib::TabelaDeSimbolos;
+std::map<std::string, InfoMacroDef> TabelaLib::MacroDefinitionTable;
+std::map<std::string, InfoMacroName> TabelaLib::MacroNameTable;
 
 
 bool TabelaLib::isDiretiva(std::string operacao) {
@@ -50,6 +50,7 @@ bool TabelaLib::isDiretiva(std::string operacao) {
             return i.first == operacao;
         };
     }
+    return false;
 }
 
 InfoDeDiretivas TabelaLib::getDiretiva(std::string operacao) {
@@ -66,6 +67,7 @@ bool TabelaLib::isInstrucao(std::string operacao) {
             return i.first == operacao;
         }
     }
+    return false;
 }
 InfoDeSimbolo::InfoDeSimbolo(int endereco, int espaco, bool isConstante, int valorConstante) : endereco(endereco),
                                                                                                espaco(espaco),
@@ -81,11 +83,11 @@ bool TabelaLib::rotuloJaExistenteNaTabelaDeSimbolos(std::string rotulo) {
     return !(TabelaLib::TabelaDeSimbolos.find(rotulo) == TabelaLib::TabelaDeSimbolos.end());
 }
 
-const std::unordered_map<std::string, InfoDeSimbolo> &TabelaLib::getTabelaDeSimbolos() const {
+const std::map<std::string, InfoDeSimbolo> &TabelaLib::getTabelaDeSimbolos() const {
     return TabelaDeSimbolos;
 }
 
-void TabelaLib::setTabelaDeSimbolos(const std::unordered_map<std::string, InfoDeSimbolo> &TabelaDeSimbolos) {
+void TabelaLib::setTabelaDeSimbolos(const std::map<std::string, InfoDeSimbolo> &TabelaDeSimbolos) {
     TabelaLib::TabelaDeSimbolos = TabelaDeSimbolos;
 }
 
@@ -93,7 +95,38 @@ InfoDeSimbolo TabelaLib::obtemSimboloNaTabelaDeSimbolos(std::string id) {
     return TabelaLib::TabelaDeSimbolos.at(id);
 }
 
-InfoMacroName::InfoMacroName(int numeroDeArgumentos, int endereco) : numeroDeArgumentos(numeroDeArgumentos),
-                                                                     endereco(endereco) {}
+void TabelaLib::insereMacroNaTabelaDeDefinicoes(std::string nomeMacro, InfoMacroDef infoMacroDef) {
+    TabelaLib::MacroDefinitionTable.insert(std::make_pair(nomeMacro, infoMacroDef));
 
-InfoMacroDef::InfoMacroDef(const std::vector<Montador::TokensDaLinha> &tokensDaLinha) : tokensDaLinha(tokensDaLinha) {}
+}
+
+InfoMacroDef TabelaLib::obtemInfoMacroDefNaTabelaDeDefinicoes(std::string id) {
+    return TabelaLib::MacroDefinitionTable.at(id);
+}
+
+void TabelaLib::insereNomeDaMacroNaTabelaDeNomes(std::string nomeMacro, InfoMacroName infoMacroName) {
+    TabelaLib::MacroNameTable.insert(std::make_pair(nomeMacro, infoMacroName));
+
+}
+
+InfoMacroName TabelaLib::obtemInfoMacroNameNaTabelaDeNomes(std::string id) {
+    return TabelaLib::MacroNameTable.at(id);
+}
+
+bool TabelaLib::macroJaExistenteNaTabelaDeNomes(std::string id) {
+    return !(TabelaLib::MacroNameTable.find(id) == TabelaLib::MacroNameTable.end());
+}
+
+void TabelaLib::esvaziarTabelaDeSimbolosEDeMacros() {
+    TabelaLib::TabelaDeSimbolos.clear();
+    TabelaLib::MacroNameTable.clear();
+    TabelaLib::MacroDefinitionTable.clear();
+}
+
+
+InfoMacroDef::InfoMacroDef(int linha, const std::vector<Montador::TokensDaLinha> &tokensDaLinha) : linha(linha),
+                                                                                                   tokensDaLinha(
+                                                                                                           tokensDaLinha) {}
+
+InfoMacroName::InfoMacroName(int numeroDeArgumentos, int linha) : numeroDeArgumentos(numeroDeArgumentos),
+                                                                  linha(linha) {}

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include "CommandOperations.h"
+#include <string>
 
 /**
  * Verifica se a operação é alguma das 3, caso contrário, retorna uma mensagem de erro e encerra o programa
@@ -23,6 +24,7 @@ bool CommandOperations::verificaOperacao() {
         std::cout << "Erro! Operacao nao identificada, por favor, use -p, -m ou -o\n";
         return false;
     }
+    return true;
 }
 /**
  * Verifica se extensão de arquivo é válida
@@ -31,15 +33,15 @@ bool CommandOperations::verificaOperacao() {
  * @param fileName
  * @return
  */
-int CommandOperations::verificaExtensaodeArquivoDeEntrada() {
+void CommandOperations::verificaExtensaodeArquivoDeEntrada() {
     // Se a string for maior que 0 e se ela não conter o ponto(indicador da extensão, então ele está sem extensão
-    size_t extensaoPosicao = getArquivoEntrada().find_last_of('.');
+    std::string::size_type extensaoPosicao;
+    extensaoPosicao = getArquivoEntrada().find_last_of('.');
     if (getArquivoEntrada().length() > 0) {
         if (extensaoPosicao != std::string::npos) {
             std::string extensao = getArquivoEntrada().substr(extensaoPosicao, getArquivoEntrada().length());
             if(extensao != ".asm") {
                 std::cout << "Erro! apenas arquivos do tipo .asm são aceitos, insira outro arquivo e tente novamente\n";
-                return -1;
             } else {
                 // Caso não tenha extensão, é necessário criar um arquivo .pre com o mesmo conteúdo
                 // O motivo disso é que a leitura de um arquivo sem extensão gera um erro de arquivo inexistente

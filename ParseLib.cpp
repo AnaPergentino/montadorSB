@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <regex>
+#include <sstream>
 #include "ParseLib.h"
 #include "TabelaLib.h"
 #include "ErrorLib.h"
@@ -85,7 +86,7 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
                 // Os operandos começam(se existirem) a partir do tokensLinhas[2], e estão separados por vírgula e espaço
                 std::string::size_type tamanho = tokensLinhas.size();
                 if(tamanho>2){
-                    for (int it = 2; it < tamanho; it++) {
+                    for (unsigned int it = 2; it < tamanho; it++) {
                         std::string::size_type posicaoVirgula = tokensLinhas[it].find(',');
                         if(posicaoVirgula != std::string::npos){
                             std::string operandoSemVirgula = tokensLinhas[it].substr(0, posicaoVirgula);
@@ -120,12 +121,26 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
             op2 = tokensLinhas[1].substr(tokensLinhas[1].find(','), tokensLinhas[1].size());
             operandosString.push_back(op1);
             operandosString.push_back(op2);
-        } else if (numeroDeOperandos == -1) { // Caso do SPACE
-            // Devemos verificar se a última string da linha a próxima string é um número, caso contrário, o operando
-            // é 1, já que o espaço não foi definido explicitamente
-            if (tokensLinhas.size() == 2) {
-                operandosString.push_back(tokensLinhas[1]);
-            } else { operandosString.push_back("1"); }
+        } else if (numeroDeOperandos == -1) { // Caso do SPACE e chamada de macro
+            std::string operacao = tokensLinhas[0];
+            int tamanho = tokensLinhas.size();
+            if(operacao == "space"){
+                if (tokensLinhas.size() == 2) {
+                    operandosString.push_back(tokensLinhas[1]);
+                } else { operandosString.push_back("1"); }
+            } else { // Chamada de macros
+                if(tamanho>1) {
+                    for (int it = 1; it < tamanho; it++) {
+                        std::string::size_type posicaoVirgula = tokensLinhas[it].find(',');
+                        if(posicaoVirgula != std::string::npos){
+                            std::string operandoSemVirgula = tokensLinhas[it].substr(0, posicaoVirgula);
+                            operandosString.push_back(operandoSemVirgula);
+                        } else {
+                            operandosString.push_back(tokensLinhas[it]);
+                        }
+                    }
+                }
+            }
         }
     }
 // TODO: Realocar essa parte do método em outro lugar
@@ -150,7 +165,7 @@ std::string ParseLib::removeComentarios(std::string linha) {
     // Comentários são definidos por um ponto e vírgula antes do comentário em si, então
     // separaremos a linha pelo delimitador ;
     // Verificamos antes se a linha possui comentários, e então fazemos a remoção de string
-    unsigned int posicaoComentario = linha.find(';');
+    std::string::size_type posicaoComentario = linha.find(';');
     if (posicaoComentario != std::string::npos) {
         std::string linhaSemComentarios = linha.substr(0, posicaoComentario);
         return linhaSemComentarios;
@@ -223,10 +238,15 @@ Montador::TokensDaLinha ParseLib::parseLinha(std::string linha, int linhaContado
             std::cout << "Operando: " << labelOperando << std::endl;
         }
 //        setContadorPosicao(contadorPosicao + infoDeInstrucoes.tamanho);
-    }// else if ( tabelaLib.isMacro()){}// TODO: Implementar esse caso, checando se a macro já existe na MDT E MNT
-    else {
-        ErrorLib errorLib(linhaContador, "Operação inexistente", "Léxico");
+    } else{
+        // Caso que o operando é um label declarado anteriormente, como aqui só fazemos a referência linha a linha, não
+        // temos como guardar as labels já declaradas, então vamos assumir apenas que é uma macro e que tem operandos
+        labelOperandos = parseOperando(linha, -1, !labelLinha.empty());
     }
+//    TODO: Fazer checagem de operação em outro momento
+//    else {
+//        ErrorLib errorLib(linhaContador, "Operação inexistente", "Léxico");
+//    }
     return Montador::TokensDaLinha(labelLinha, labelOperacao, labelOperandos, linhaContador);
 }
 
@@ -287,11 +307,6 @@ void ParseLib::preparaCodigo() {
         Montador::TokensDaLinha tokensDaLinha = parseLinha(codeLine, contadorLinha, contadorPosicao);
         listTokensDaLinha.push_back(tokensDaLinha);
         contadorLinha++;
-//        Montador::TokensDaLinha tokensDaLinha(parseLinha(*i, contadorLinha, contadorPosicao));
-//        std::cout << "Label: "<< tokensDaLinha.label << std::endl;
-//        std::cout << "Operacao: "<< tokensDaLinha.operacao << std::endl;
-//        std::cout << "Operandos: "<< tokensDaLinha.label << std::endl;
-//        std::cout << "Numero da Linha: "<< tokensDaLinha.numeroDaLinha << std::endl << std::endl;
     }
     for (auto &i : listTokensDaLinha) {
         std::cout << "Label: " << i.label << std::endl;
@@ -301,8 +316,9 @@ void ParseLib::preparaCodigo() {
         }
         std::cout << "Numero da Linha: " << i.numeroDaLinha << std::endl << std::endl;
     }
-    PreProcessamento preProcessamento(listTokensDaLinha);
-    preProcessamento.processarDiretivasEMacros("blabla");
+	  PreProcessamento preProcessamento(listTokensDaLinha);
+      preProcessamento.processarDiretivasEMacros("blabla");
+      preProcessamento.montarCodigo();
 }
 
 const std::vector<std::string> &ParseLib::getLinhasDoCodigo() const {
@@ -339,11 +355,10 @@ void ParseLib::setParsingMacro(bool parsingMacro) {
 }
 
 int ParseLib::converteOperandoHexaParaInteiro(std::string operando) {
-    return std::stoi(operando, nullptr, 0);
+    return std::stoi(operando, nullptr, 16);
 }
 
 int ParseLib::converteOperandoParaInteiro(std::string operando) {
-    std::string::size_type sz;   // alias of size_t
     return std::stoi(operando);
 }
 

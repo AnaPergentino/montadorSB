@@ -15,4 +15,7 @@ Montador::TokensDaLinha::TokensDaLinha(
 
 void Montador::adicionarTokenDaLinha(Montador::TokensDaLinha linha) {
     Montador::listaDeTokensDoArquivo.push_back(linha);
+
+
+
 }
