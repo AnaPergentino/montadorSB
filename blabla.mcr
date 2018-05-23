@@ -7,9 +7,9 @@ input &c
 endmacro 
 load n
 input n
-load #0
-input #1
-input #2
+load &a
+input &a
+input &a
 load n
 input n
 input x+l2

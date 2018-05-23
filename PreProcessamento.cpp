@@ -194,7 +194,7 @@ void PreProcessamento::processarDiretivasEMacros(std::string nomeArquivoSaida) {
             int valor = parseLib.converteOperandoParaInteiro(tokensDaLinha[i].operando[0]);
             if (!tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operacao)) {
                 tabelaLib.insereSimboloNaTabelaDeSimbolos(tokensDaLinha[i].label,
-                                                          InfoDeSimbolo(contadorPosicao, -1, true, valor));
+                                                          InfoDeSimbolo(valor, valor, true, valor));
                 // Após a inserção, removemos essa linha, pois ela não entrará no arquivo de saída:
                 tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
                 fatorDeCorrecao++;
