@@ -235,14 +235,18 @@ void PreProcessamento::processarDiretivasEMacros(std::string nomeArquivoSaida) {
             std::map<std::string, std::string> mapVariaveis;
             if (tokensDaLinha[i].operando.size() == numeroOperandos) {
                 for (int j = 0; j < numeroOperandos; j++) {
+                    std::cout << "Operandos: " << tokensDaLinha[i].operando[j] << std::endl;
                     mapVariaveis["#" + std::to_string(j)] = tokensDaLinha[i].operando[j];
                 }
             }
-            for (auto &k : infoDefinicao.tokensDaLinha) {
+
+            for (auto &k : macroParcial) {
                 for (unsigned int m = 0; m < k.operando.size(); m++) {
+                    std::cout << "Macro parcial operando: " << k.operando[m] << std::endl;
                     for (int n = 0; n < numeroOperandos; n++) {
-                        if (k.operando[m] == mapVariaveis.at("#" + std::to_string(n))) {
-                            k.operando[m] = "#" + std::to_string(n);
+                        std::cout << "Map variable: " << mapVariaveis.at("#" + std::to_string(n)) << std::endl;
+                        if (k.operando[m] == "#" + std::to_string(n)) {
+                            k.operando[m] = mapVariaveis.at("#" + std::to_string(m));
                         }
                     }
                 }
@@ -253,8 +257,8 @@ void PreProcessamento::processarDiretivasEMacros(std::string nomeArquivoSaida) {
             linhasParcial.insert(linhasParcial.begin(), tokensDaLinhaSaida.begin(),
                                  tokensDaLinhaSaida.begin() + i - fatorDeCorrecao);
             // Insere a macro justamente na sua posição de declaração:
-            linhasParcial.insert(linhasParcial.begin() + i - fatorDeCorrecao, infoDefinicao.tokensDaLinha.begin(),
-                                 infoDefinicao.tokensDaLinha.end() - 1);
+            linhasParcial.insert(linhasParcial.begin() + i - fatorDeCorrecao, macroParcial.begin(),
+                                 macroParcial.end() - 1);
             linhasParcial.insert(linhasParcial.end(), tokensDaLinhaSaida.begin() + i - fatorDeCorrecao + 1,
                                  tokensDaLinhaSaida.end());
             tokensDaLinha.reserve(linhasParcial.size());
@@ -373,7 +377,7 @@ void PreProcessamento::primeiraPassagem(std::vector<Montador::TokensDaLinha> tok
         // Operação
         // Se for instrução
         if (tabelaLib.isInstrucao(operacao)) {
-            if(isSectionData){
+            if (isSectionData) {
                 ErrorLib errorLib(contadorLinha, "Instrucao em local incorreto!", "Léxico");
             }
             infoDeInstrucoes = tabelaLib.getInstrucao(operacao);
@@ -488,11 +492,11 @@ void PreProcessamento::segundaPassagem() {
         InfoDeDiretivas infoDeDiretivas;
 
 
-        if(tabelaLib.isInstrucao(operacao)){
+        if (tabelaLib.isInstrucao(operacao)) {
             infoDeInstrucoes = tabelaLib.getInstrucao(operacao);
-            for(int j = 0; j < numeroDeOperandos; j++){
-                if (!isOperandoNumero(operando[j])){
-                    if(tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(operando[j])){
+            for (int j = 0; j < numeroDeOperandos; j++) {
+                if (!isOperandoNumero(operando[j])) {
+                    if (tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(operando[j])) {
                         arquivoDeSaida << infoDeInstrucoes.opcodesInstrucoes << " ";
                         arquivoDeSaida << tabelaLib.obtemSimboloNaTabelaDeSimbolos(operando[j]).endereco << " ";
                     }
