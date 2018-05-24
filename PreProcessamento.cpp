@@ -86,7 +86,7 @@ void PreProcessamento::processarDiretivas(std::string nomeArquivoSaida) {
 
         if (tokensDaLinha[i].operacao == "if" && isSectionText) {
             tokensDaLinhaSaida.erase(tokensDaLinhaSaida.begin() + (i - fatorDeCorrecao));
-            std::cout << "Linha: " << tokensDaLinha[i].numeroDaLinha << std::endl;
+//            std::cout << "Linha: " << tokensDaLinha[i].numeroDaLinha << std::endl;
             // Procura na tabela de símbolos se o símbolo já foi definido anteriormente
             if (tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(tokensDaLinha[i].operando[0])) {
                 InfoDeSimbolo infoSimbolo = tabelaLib.obtemSimboloNaTabelaDeSimbolos(tokensDaLinha[i].operando[0]);
@@ -235,16 +235,16 @@ void PreProcessamento::processarDiretivasEMacros(std::string nomeArquivoSaida) {
             std::map<std::string, std::string> mapVariaveis;
             if (tokensDaLinha[i].operando.size() == numeroOperandos) {
                 for (int j = 0; j < numeroOperandos; j++) {
-                    std::cout << "Operandos: " << tokensDaLinha[i].operando[j] << std::endl;
+//                    std::cout << "Operandos: " << tokensDaLinha[i].operando[j] << std::endl;
                     mapVariaveis["#" + std::to_string(j)] = tokensDaLinha[i].operando[j];
                 }
             }
 
             for (auto &k : macroParcial) {
                 for (unsigned int m = 0; m < k.operando.size(); m++) {
-                    std::cout << "Macro parcial operando: " << k.operando[m] << std::endl;
+//                    std::cout << "Macro parcial operando: " << k.operando[m] << std::endl;
                     for (int n = 0; n < numeroOperandos; n++) {
-                        std::cout << "Map variable: " << mapVariaveis.at("#" + std::to_string(n)) << std::endl;
+//                        std::cout << "Map variable: " << mapVariaveis.at("#" + std::to_string(n)) << std::endl;
                         if (k.operando[m] == "#" + std::to_string(n)) {
                             k.operando[m] = mapVariaveis.at("#" + std::to_string(m));
                         }
@@ -342,12 +342,12 @@ std::vector<Montador::TokensDaLinha> PreProcessamento::redefineVariaveisDeMacro(
 /**
  * Aqui realizamos a montagem do código, que vai sofrer uma análise léxica
  */
-void PreProcessamento::montarCodigo() {
+void PreProcessamento::montarCodigo(std::string nomeArquivoSaida) {
     std::vector<Montador::TokensDaLinha> tokensDaLinha = getTokensDaLinhaList();
-    primeiraPassagem(tokensDaLinha);
+    primeiraPassagem(tokensDaLinha, nomeArquivoSaida);
 }
 
-void PreProcessamento::primeiraPassagem(std::vector<Montador::TokensDaLinha> tokensDaLinha) {
+void PreProcessamento::primeiraPassagem(std::vector<Montador::TokensDaLinha> tokensDaLinha, std::string nomeArquivoSaida) {
     TabelaLib tabelaLib;
     int contadorLinha = 1;
     int contadorPosicao = 0;
@@ -437,9 +437,9 @@ void PreProcessamento::primeiraPassagem(std::vector<Montador::TokensDaLinha> tok
         contadorLinha++;
     }
 
-    std::cout << "Fim da primeira passagem!" << std::endl;
-    showTabelaDeSimbolos();
-    segundaPassagem();
+//    std::cout << "Fim da primeira passagem!" << std::endl;
+//    showTabelaDeSimbolos();
+    segundaPassagem(nomeArquivoSaida);
 }
 
 bool PreProcessamento::isOperandoNumero(std::string operando) {
@@ -465,22 +465,21 @@ void PreProcessamento::showTabelaDeSimbolos() {
     TabelaLib tabelaLib;
     std::map<std::string, InfoDeSimbolo> tabelaDeSimbolos = tabelaLib.getTabelaDeSimbolos();
     for (auto &tabelaDeSimbolo : tabelaDeSimbolos) {
-        std::cout << "Simbolo: " << tabelaDeSimbolo.first << std::endl;
-        std::cout << "Valor: " << tabelaDeSimbolo.second.endereco << std::endl;
+//        std::cout << "Simbolo: " << tabelaDeSimbolo.first << std::endl;
+//        std::cout << "Valor: " << tabelaDeSimbolo.second.endereco << std::endl;
     }
 
 }
 
 
-void PreProcessamento::segundaPassagem() {
+void PreProcessamento::segundaPassagem(std::string nomeArquivoSaida) {
     std::vector<Montador::TokensDaLinha> tokensDaLinha = getTokensDaLinhaList();
     TabelaLib tabelaLib;
     int contadorLinha = 1;
     int contadorPosicao = 0;
     bool isSectionText = false;
     bool isSectionData = false;
-    std::ofstream arquivoDeSaida("testefinal.o");
-
+    std::ofstream arquivoDeSaida(nomeArquivoSaida +".o");
 
     for (unsigned int i = 0; i < tokensDaLinha.size(); i++) {
         std::string label = tokensDaLinha[i].label;
@@ -491,14 +490,35 @@ void PreProcessamento::segundaPassagem() {
         InfoDeInstrucoes infoDeInstrucoes;
         InfoDeDiretivas infoDeDiretivas;
 
-
         if (tabelaLib.isInstrucao(operacao)) {
             infoDeInstrucoes = tabelaLib.getInstrucao(operacao);
             for (int j = 0; j < numeroDeOperandos; j++) {
+                int valor = 0;
+                if (operando[j].find('+') != std::string::npos) {
+                    std::string copia = operando[j];
+                    operando[j] = operando[j].substr(0, operando[j].find('+'));
+                    std::string temp = copia.substr(copia.find('+')+1, copia.size());
+                    if(tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(temp)){
+                        valor = tabelaLib.obtemSimboloNaTabelaDeSimbolos(temp).valorConstante;
+                    } else {
+                        valor = converteStringParaInt(temp);
+//                        std::cout << "Valor: " << valor << std::endl;
+                    }
+                } else if (operando[j].find('-') != std::string::npos) {
+                    std::string copia = operando[j];
+                    operando[j] = operando[j].substr(0, operando[j].find('-'));
+                    std::string temp = copia.substr(copia.find('-')+1, copia.size());
+                    if(tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(temp)){
+                        valor = tabelaLib.obtemSimboloNaTabelaDeSimbolos(temp).valorConstante;
+                    } else {
+                        valor = converteStringParaInt(temp);
+//                        std::cout << "Valor: " << valor << std::endl;
+                    }
+                }
                 if (!isOperandoNumero(operando[j])) {
                     if (tabelaLib.rotuloJaExistenteNaTabelaDeSimbolos(operando[j])) {
                         arquivoDeSaida << infoDeInstrucoes.opcodesInstrucoes << " ";
-                        arquivoDeSaida << tabelaLib.obtemSimboloNaTabelaDeSimbolos(operando[j]).endereco << " ";
+                        arquivoDeSaida << tabelaLib.obtemSimboloNaTabelaDeSimbolos(operando[j]).endereco+valor << " ";
                     }
                 }
             }

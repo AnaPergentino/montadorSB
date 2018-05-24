@@ -50,6 +50,12 @@ public:
 
     int converteStringParaInt(std::string operando);
     int converteStringHexaParaInt(std::string operando);
+
+    void segundaPassagem(std::string nomeArquivoSaida);
+
+    void primeiraPassagem(std::vector<Montador::TokensDaLinha> tokensDaLinha, std::string nomeArquivoSaida);
+
+    void montarCodigo(std::string nomeArquivoSaida);
 };
 
 

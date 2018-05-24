@@ -42,7 +42,7 @@ public:
     std::string removeTabulacoes(std::string linha);
     std::vector<std::string> separaEmLinhas(std::string fileString);
     std::string removeComentarios(std::string linha);
-    void preparaCodigo();
+    void preparaCodigo(std::string, const std::string &string, const std::string &basic_string);
     void printLinha(std::string linha);
     int converteOperandoHexaParaInteiro(std::string operando);
 

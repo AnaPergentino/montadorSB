@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
     CommandOperations comando(argv[1], argv[2], argv[3]);
     if(comando.comandoEValido()){
         // DEBUG
-        std::cout << "Operacao: " << comando.getOperacao() << "\n";
-        std::cout << "Arquivo de entrada: " << comando.getArquivoEntrada() << "\n";
-        std::cout << "Arquivo de saida: " << comando.getArquivoSaida() << "\n";
+//        std::cout << "Operacao: " << comando.getOperacao() << "\n";
+//        std::cout << "Arquivo de entrada: " << comando.getArquivoEntrada() << "\n";
+//        std::cout << "Arquivo de saida: " << comando.getArquivoSaida() << "\n";
         // END DEBUG
 
         // Abre o arquivo e lê linha a linha:
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
         std::stringstream stringstream;
             stringstream << fileAssembly.rdbuf();
             ParseLib parseLib(stringstream.str());
-            parseLib.preparaCodigo();
+            parseLib.preparaCodigo(comando.getOperacao(), comando.getArquivoEntrada(), comando.getArquivoSaida());
             fileAssembly.close();
         }
         else {
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
         }
     };
 
-    std::cout << "Aperte qualquer botão para sair" << std::endl;
+    std::cout << "Execucao bem sucedida! Aperte qualquer botao para sair" << std::endl;
     getchar();
     return 0;
 }

@@ -22,6 +22,7 @@ bool CommandOperations::verificaOperacao() {
         //TODO: Operação de montagem
     } else {
         std::cout << "Erro! Operacao nao identificada, por favor, use -p, -m ou -o\n";
+        exit(1);
         return false;
     }
     return true;
@@ -42,6 +43,7 @@ void CommandOperations::verificaExtensaodeArquivoDeEntrada() {
             std::string extensao = getArquivoEntrada().substr(extensaoPosicao, getArquivoEntrada().length());
             if(extensao != ".asm") {
                 std::cout << "Erro! apenas arquivos do tipo .asm são aceitos, insira outro arquivo e tente novamente\n";
+                exit(1);
             } else {
                 // Caso não tenha extensão, é necessário criar um arquivo .pre com o mesmo conteúdo
                 // O motivo disso é que a leitura de um arquivo sem extensão gera um erro de arquivo inexistente
@@ -75,13 +77,13 @@ CommandOperations::CommandOperations(std::string operacao, std::string arquivoEn
 
 bool CommandOperations::comandoEValido() {
     bool retorno(verificaOperacao() && verificaArquivoDeSaida());
-    std::cout << "comandoEValido() retorno: " << retorno << "\n";
+//    std::cout << "comandoEValido() retorno: " << retorno << "\n";
     return retorno;
 }
 
 bool CommandOperations::arquivoEValido(std::string file) {
     std::ifstream arquivo(file);
-    std::cout << "arquivoEValido() retorno: " << file << ":\n" << arquivo.good() << "\n";
+//    std::cout << "arquivoEValido() retorno: " << file << ":\n" << arquivo.good() << "\n";
     return arquivo.good();
 }
 

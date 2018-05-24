@@ -21,10 +21,10 @@ std::string ParseLib::parseLabel(std::string linha) {
     if (posicaoLabel != std::string::npos) {
         label = linha.substr(0, posicaoLabel);
         // DEBUG
-        std::cout << "parseLabel label: " << label << std::endl;
+//        std::cout << "parseLabel label: " << label << std::endl;
         return label;
     } else {
-        std::cout << "Nao existem labels nessa linha!" << std::endl;
+//        std::cout << "Nao existem labels nessa linha!" << std::endl;
         return "";
     }
 }
@@ -41,10 +41,10 @@ std::string ParseLib::parseOperacao(std::string linha, bool hasLabel) {
               std::back_inserter(tokensLinhas));
 
     if (hasLabel) {
-        std::cout << "Linha Operacao/Diretiva:" << tokensLinhas[1] << std::endl;
+//        std::cout << "Linha Operacao/Diretiva:" << tokensLinhas[1] << std::endl;
         return tokensLinhas[1];
     } else {
-        std::cout << "Linha Operacao/Diretiva:" << tokensLinhas[0] << std::endl;
+//        std::cout << "Linha Operacao/Diretiva:" << tokensLinhas[0] << std::endl;
         return tokensLinhas[0];
     }
 }
@@ -85,10 +85,10 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
             if (operacao == "macro") {
                 // Os operandos começam(se existirem) a partir do tokensLinhas[2], e estão separados por vírgula e espaço
                 std::string::size_type tamanho = tokensLinhas.size();
-                if(tamanho>2){
+                if (tamanho > 2) {
                     for (unsigned int it = 2; it < tamanho; it++) {
                         std::string::size_type posicaoVirgula = tokensLinhas[it].find(',');
-                        if(posicaoVirgula != std::string::npos){
+                        if (posicaoVirgula != std::string::npos) {
                             std::string operandoSemVirgula = tokensLinhas[it].substr(0, posicaoVirgula);
                             operandosString.push_back(operandoSemVirgula);
                         } else {
@@ -124,15 +124,15 @@ std::vector<std::string> ParseLib::parseOperando(std::string linha, int numeroDe
         } else if (numeroDeOperandos == -1) { // Caso do SPACE e chamada de macro
             std::string operacao = tokensLinhas[0];
             int tamanho = tokensLinhas.size();
-            if(operacao == "space"){
+            if (operacao == "space") {
                 if (tokensLinhas.size() == 2) {
                     operandosString.push_back(tokensLinhas[1]);
                 } else { operandosString.push_back("1"); }
             } else { // Chamada de macros
-                if(tamanho>1) {
+                if (tamanho > 1) {
                     for (int it = 1; it < tamanho; it++) {
                         std::string::size_type posicaoVirgula = tokensLinhas[it].find(',');
-                        if(posicaoVirgula != std::string::npos){
+                        if (posicaoVirgula != std::string::npos) {
                             std::string operandoSemVirgula = tokensLinhas[it].substr(0, posicaoVirgula);
                             operandosString.push_back(operandoSemVirgula);
                         } else {
@@ -219,7 +219,7 @@ Montador::TokensDaLinha ParseLib::parseLinha(std::string linha, int linhaContado
         labelOperandos = parseOperando(linha, infoDeDiretivas.numeroDeOperandos, !labelLinha.empty());
         // DEBUG Operando
         for (auto &labelOperando : labelOperandos) {
-            std::cout << "Operando: " << labelOperando << std::endl;
+//            std::cout << "Operando: " << labelOperando << std::endl;
         }
         if (infoDeDiretivas.tamanho == -1) {
         }
@@ -235,10 +235,10 @@ Montador::TokensDaLinha ParseLib::parseLinha(std::string linha, int linhaContado
         labelOperandos = parseOperando(linha, infoDeInstrucoes.numeroDeOperandos, !labelLinha.empty());
         // DEBUG Operando
         for (auto &labelOperando : labelOperandos) {
-            std::cout << "Operando: " << labelOperando << std::endl;
+//            std::cout << "Operando: " << labelOperando << std::endl;
         }
 //        setContadorPosicao(contadorPosicao + infoDeInstrucoes.tamanho);
-    } else{
+    } else {
         // Caso que o operando é um label declarado anteriormente, como aqui só fazemos a referência linha a linha, não
         // temos como guardar as labels já declaradas, então vamos assumir apenas que é uma macro e que tem operandos
         labelOperandos = parseOperando(linha, -1, !labelLinha.empty());
@@ -290,13 +290,11 @@ std::vector<std::string> ParseLib::separaEmLinhas(std::string fileString) {
     return strings;
 }
 
-void ParseLib::preparaCodigo() {
+void ParseLib::preparaCodigo(std::string operacao, const std::string &arquivoEntradaNome, const std::string &arquivoSaidaNome) {
     std::string arquivo = this->getArquivo();
     arquivo = this->removeTabulacoes(arquivo);
     arquivo = this->removeEspacosEmBrancoExtras(arquivo);
     setLinhasDoCodigo(this->separaEmLinhas(arquivo));
-    // A partir daqui, a operação define algumas coisas, então isso ficará aqui por motivo de testes
-    // TODO: Remover isso posteriormente
     std::vector<std::string> codeLines = getLinhasDoCodigo();
     int contadorLinha = 1;
     setContadorLinha(contadorLinha);
@@ -308,17 +306,26 @@ void ParseLib::preparaCodigo() {
         listTokensDaLinha.push_back(tokensDaLinha);
         contadorLinha++;
     }
-    for (auto &i : listTokensDaLinha) {
-        std::cout << "Label: " << i.label << std::endl;
-        std::cout << "Operacao: " << i.operacao << std::endl;
-        for (auto it = i.operando.begin(); it != i.operando.end(); ++it) {
-            std::cout << "Operando: " << *it << std::endl;
-        }
-        std::cout << "Numero da Linha: " << i.numeroDaLinha << std::endl << std::endl;
+//    DEBUG
+//    for (auto &i : listTokensDaLinha) {
+//        std::cout << "Label: " << i.label << std::endl;
+//        std::cout << "Operacao: " << i.operacao << std::endl;
+//        for (auto it = i.operando.begin(); it != i.operando.end(); ++it) {
+//            std::cout << "Operando: " << *it << std::endl;
+//        }
+//        std::cout << "Numero da Linha: " << i.numeroDaLinha << std::endl << std::endl;
+//    }
+
+    PreProcessamento preProcessamento(listTokensDaLinha);
+    if(operacao == "-p") {
+        preProcessamento.processarDiretivas(arquivoSaidaNome);
+    } else if(operacao == "-m"){
+        preProcessamento.processarDiretivasEMacros(arquivoSaidaNome);
+    } else if(operacao == "-o"){
+        preProcessamento.processarDiretivasEMacros(arquivoSaidaNome);
+        preProcessamento.montarCodigo(arquivoSaidaNome);
     }
-	  PreProcessamento preProcessamento(listTokensDaLinha);
-      preProcessamento.processarDiretivasEMacros("blabla");
-      preProcessamento.montarCodigo();
+
 }
 
 const std::vector<std::string> &ParseLib::getLinhasDoCodigo() const {
@@ -342,7 +349,7 @@ void ParseLib::setArquivo(const std::string &arquivo) {
 }
 
 void ParseLib::printLinha(std::string linha) {
-    std::cout << "Linha atual: " << linha << std::endl;
+//    std::cout << "Linha atual: " << linha << std::endl;
 
 }
 
